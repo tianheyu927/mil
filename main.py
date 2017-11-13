@@ -14,14 +14,14 @@ FLAGS = flags.FLAGS
 LOGGER = logging.getLogger(__name__)
 
 ## Dataset/method options
-flags.DEFINE_string('experiment', 'sim_reach', 'sim_vision_reach or sim_push or real_place')
+flags.DEFINE_string('experiment', 'sim_reach', 'sim_vision_reach or sim_push')
 flags.DEFINE_string('demo_file', None, 'path to the directory where demo files that containing robot states and actions are stored')
 flags.DEFINE_string('demo_gif_dir', None, 'path to the videos of demonstrations')
 flags.DEFINE_string('gif_prefix', 'object', 'prefix of the video directory for each task, e.g. object_0 for task 0')
-flags.DEFINE_integer('im_width', 100, 'width of the images in the demo videos, 100 for real_place, 125 for sim_push, and 80 for sim_vision_reach')
-flags.DEFINE_integer('im_height', 90, 'height of the images in the demo videos, 90 for real_place, 125 for sim_push, and 64 for sim_vision_reach')
+flags.DEFINE_integer('im_width', 100, 'width of the images in the demo videos,  125 for sim_push, and 80 for sim_vision_reach')
+flags.DEFINE_integer('im_height', 90, 'height of the images in the demo videos, 125 for sim_push, and 64 for sim_vision_reach')
 flags.DEFINE_integer('num_channels', 3, 'number of channels of the images in the demo videos')
-flags.DEFINE_integer('T', 50, 'time horizon of the demo videos, 50 for reach, 100 for push, and 30 for place')
+flags.DEFINE_integer('T', 50, 'time horizon of the demo videos, 50 for reach, 100 for push')
 flags.DEFINE_bool('hsv', False, 'convert the image to HSV format')
 flags.DEFINE_bool('use_noisy_demos', False, 'use noisy demonstrations or not (for domain shift)')
 flags.DEFINE_string('noisy_demo_gif_dir', None, 'path to the videos of noisy demonstrations')
@@ -31,9 +31,9 @@ flags.DEFINE_bool('no_state', False, 'do not include states in the demonstration
 flags.DEFINE_bool('no_final_eept', False, 'do not include final ee pos in the demonstrations for inner update')
 flags.DEFINE_bool('zero_state', False, 'zero-out states (meta-learn state) in the demonstrations for inner update')
 flags.DEFINE_bool('two_arms', False, 'use two-arm structure when state is zeroed-out')
-flags.DEFINE_integer('training_set_size', -1, 'size of the training set, 1500 for sim_reach, 693 for sim push, and 150 for real place, \
+flags.DEFINE_integer('training_set_size', -1, 'size of the training set, 1500 for sim_reach, 693 for sim push, and \
                                                 -1 for all data except those in validation set')
-flags.DEFINE_integer('val_set_size', 150, 'size of the training set, 150 for sim_reach, 76 for sim push, and 12 for real place')
+flags.DEFINE_integer('val_set_size', 150, 'size of the training set, 150 for sim_reach and 76 for sim push')
 
 ## Training options
 flags.DEFINE_integer('metatrain_iterations', 50000, 'number of metatraining iterations.') # 30k for pushing, 50k for reaching and placing
@@ -59,7 +59,7 @@ flags.DEFINE_integer('final_eept_min', 6, 'first index of the final eept in the 
 flags.DEFINE_integer('final_eept_max', 8, 'last index of the final eept in the action array')
 flags.DEFINE_float('final_eept_loss_eps', 0.1, 'the coefficient of the auxiliary loss')
 flags.DEFINE_float('act_loss_eps', 1.0, 'the coefficient of the action loss')
-flags.DEFINE_float('loss_multiplier', 100.0, 'the constant multiplied with the loss value, 100 for reach and place, 50 for push')
+flags.DEFINE_float('loss_multiplier', 100.0, 'the constant multiplied with the loss value, 100 for reach and 50 for push')
 flags.DEFINE_bool('use_l1_l2_loss', False, 'use a loss with combination of l1 and l2')
 flags.DEFINE_float('l2_eps', 0.01, 'coeffcient of l2 loss')
 flags.DEFINE_bool('shuffle_val', False, 'whether to choose the validation set via shuffling or not')
