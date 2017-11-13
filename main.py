@@ -277,8 +277,7 @@ def main():
         # Start queue runners (used for loading videos on the fly)
         tf.train.start_queue_runners(sess=sess)
     if FLAGS.resume:
-        # model_file = tf.train.latest_checkpoint(log_dir)
-        model_file = log_dir + '/model_29000'
+        model_file = tf.train.latest_checkpoint(log_dir)
         if FLAGS.restore_iter > 0:
             model_file = model_file[:model_file.index('model')] + 'model_' + str(FLAGS.restore_iter)
         if model_file:
