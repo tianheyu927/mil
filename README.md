@@ -6,4 +6,5 @@ First clone the fork of the gym repo found [here](https://github.com/tianheyu927
 
 Then training and testing scripts for MIL are available in `scripts/`.
 
-*Note: Data including demonstrations for all experiments and texture files for running the pushing experiment are coming soon.*
+*Note 1: Data including demonstrations for all experiments and texture files for running the pushing experiment are coming soon.*
+*Note 2: The code only includes the simulated experiments.*
