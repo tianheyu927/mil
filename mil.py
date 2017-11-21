@@ -41,8 +41,6 @@ class MIL(object):
                 self.state_tensor = self.statea
                 self.test_act_op = test_output
                 self.image_op = flat_img_inputb
-            if 'Training' in prefix:
-                self.train_act_op = test_output # post-update output
 
             trainable_vars = tf.trainable_variables()
             total_loss1 = tf.reduce_sum(lossesa) / tf.to_float(self.meta_batch_size)
@@ -129,7 +127,6 @@ class MIL(object):
             weights['img_context'] = safe_get('img_context', initializer=tf.zeros([im_height, im_width, num_channels], dtype=tf.float32))
             weights['img_context'] = tf.clip_by_value(weights['img_context'], 0., 1.)
         for i in xrange(n_conv_layers):
-            # if not pretrain or (i != 0 and i != 1):
             if not pretrain or i != 0:
                 if self.norm_type == 'selu':
                     weights['wc%d' % (i+1)] = init_conv_weights_snn([filter_sizes[i], filter_sizes[i], fan_in, num_filters[i]], name='wc%d' % (i+1)) # 5x5 conv, 1 input, 32 outputs
@@ -158,7 +155,7 @@ class MIL(object):
         # fc weights
         in_shape = self.conv_out_size
         if not FLAGS.no_state:
-            in_shape += len(self.state_idx) # hard-coded for last conv layer output
+            in_shape += len(self.state_idx)
         if FLAGS.learn_final_eept:
             final_eept_range = range(FLAGS.final_eept_min, FLAGS.final_eept_max)
             final_eept_in_shape = self.conv_out_size
@@ -181,8 +178,8 @@ class MIL(object):
         return weights
     
     def construct_fc_weights(self, dim_input=27, dim_output=7, network_config=None):
-        n_layers = network_config.get('n_layers', 4) # TODO TODO this used to be 3.
-        dim_hidden = network_config.get('layer_size', [100]*(n_layers-1))  # TODO TODO This used to be 20.
+        n_layers = network_config.get('n_layers', 4)
+        dim_hidden = network_config.get('layer_size', [100]*(n_layers-1))
         if type(dim_hidden) is not list:
             dim_hidden = (n_layers - 1)*[dim_hidden]
         dim_hidden.append(dim_output)
