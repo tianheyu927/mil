@@ -4,8 +4,8 @@
 
 First clone the fork of the gym repo found [here](https://github.com/tianheyu927/gym), and following the instructions there to install gym. Switch to branch *mil*.
 
-Then training and testing scripts for MIL are available in `scripts/`.
+Then go to the `mil` directory and run `./scripts/get_data.sh` to download the data.
 
-*Note 1: Data including demonstrations for all experiments and texture files for running the pushing experiment are coming soon.*
+After downloading the data, training and testing scripts for MIL are available in `scripts/`.
 
-*Note 2: The code only includes the simulated experiments.*
+*Note: The code only includes the simulated experiments.*
