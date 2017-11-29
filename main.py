@@ -38,7 +38,7 @@ flags.DEFINE_integer('val_set_size', 150, 'size of the training set, 150 for sim
 ## Training options
 flags.DEFINE_integer('metatrain_iterations', 50000, 'number of metatraining iterations.') # 30k for pushing, 50k for reaching and placing
 flags.DEFINE_integer('meta_batch_size', 12, 'number of tasks sampled per meta-update') # 5 for reaching, 15 for pushing, 12 for placing
-flags.DEFINE_float('meta_lr', 0.001, 'the base learning rate of the generator') 
+flags.DEFINE_float('meta_lr', 0.001, 'the base learning rate of the generator')
 flags.DEFINE_integer('update_batch_size', 1, 'number of examples used for inner gradient update (K for K-shot learning).')
 flags.DEFINE_float('train_update_lr', 1e-3, 'step size alpha for inner gradient update.') # 0.001 for reaching, 0.01 for pushing and placing
 flags.DEFINE_integer('num_updates', 1, 'number of inner gradient updates during training.') # 5 for placing
@@ -152,12 +152,12 @@ def train(graph, model, saver, sess, data_generator, log_dir, restore_itr=0):
                     results = sess.run(input_tensors, feed_dict=feed_dict)
                 train_writer.add_summary(results[0], itr)
                 print 'Test results: average preloss is %.2f, average postloss is %.2f' % (np.mean(results[1]), np.mean(results[2]))
-        
+
         if itr != 0 and (itr % SAVE_INTERVAL == 0 or itr == training_range[-1]):
             print 'Saving model to: %s' % (save_dir + '_%d' % itr)
             with graph.as_default():
                 saver.save(sess, save_dir + '_%d' % itr)
-                
+
 def generate_test_demos(data_generator):
     if not FLAGS.use_noisy_demos:
         n_folders = len(data_generator.demos.keys())
@@ -205,7 +205,7 @@ def main():
     sess = tf.Session(graph=graph, config=tf_config)
     network_config = {
         'num_filters': [FLAGS.num_filters]*FLAGS.num_conv_layers,
-        'strides': [[1, 2, 2, 1]]*FLAGS.num_strides + [[1, 1, 1, 1]]*(FLAGS.num_conv_layers-FLAGS.num_strides), 
+        'strides': [[1, 2, 2, 1]]*FLAGS.num_strides + [[1, 1, 1, 1]]*(FLAGS.num_conv_layers-FLAGS.num_strides),
         'filter_size': FLAGS.filter_size,
         'image_width': FLAGS.im_width,
         'image_height': FLAGS.im_height,
@@ -244,7 +244,7 @@ def main():
         exp_string += '.two_arms'
     if FLAGS.training_set_size != -1:
         exp_string += '.' + str(FLAGS.training_set_size) + '_trials'
-    
+
     log_dir = FLAGS.log_dir + '/' + exp_string
 
     # put here for now

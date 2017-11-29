@@ -46,7 +46,7 @@ class MIL(object):
             total_loss1 = tf.reduce_sum(lossesa) / tf.to_float(self.meta_batch_size)
             total_losses2 = [tf.reduce_sum(lossesb[j]) / tf.to_float(self.meta_batch_size) for j in range(self.num_updates)]
             total_final_eept_losses2 = [tf.reduce_sum(final_eept_lossesb[j]) / tf.to_float(self.meta_batch_size) for j in range(self.num_updates)]
-            
+
             if 'Training' in prefix:
                 self.total_loss1 = total_loss1
                 self.total_losses2 = total_losses2
@@ -77,10 +77,10 @@ class MIL(object):
     def construct_image_input(self, nn_input, state_idx, img_idx, network_config=None):
         state_input = nn_input[:, 0:state_idx[-1]+1]
         flat_image_input = nn_input[:, state_idx[-1]+1:img_idx[-1]+1]
-    
+
         # image goes through 3 convnet layers
         num_filters = network_config['num_filters']
-    
+
         im_height = network_config['image_height']
         im_width = network_config['image_width']
         num_channels = network_config['image_channels']
@@ -91,7 +91,7 @@ class MIL(object):
             # 'RGB'->'BGR'
             image_input = image_input[:, :, :, ::-1]
         return image_input, flat_image_input, state_input
-    
+
     def construct_weights(self, dim_input=27, dim_output=7, network_config=None):
         weights = {}
         num_filters = network_config['num_filters']
@@ -130,7 +130,7 @@ class MIL(object):
             if not pretrain or i != 0:
                 if self.norm_type == 'selu':
                     weights['wc%d' % (i+1)] = init_conv_weights_snn([filter_sizes[i], filter_sizes[i], fan_in, num_filters[i]], name='wc%d' % (i+1)) # 5x5 conv, 1 input, 32 outputs
-                elif initialization == 'xavier':                
+                elif initialization == 'xavier':
                     weights['wc%d' % (i+1)] = init_conv_weights_xavier([filter_sizes[i], filter_sizes[i], fan_in, num_filters[i]], name='wc%d' % (i+1)) # 5x5 conv, 1 input, 32 outputs
                 elif initialization == 'random':
                     weights['wc%d' % (i+1)] = init_weights([filter_sizes[i], filter_sizes[i], fan_in, num_filters[i]], name='wc%d' % (i+1)) # 5x5 conv, 1 input, 32 outputs
@@ -140,7 +140,7 @@ class MIL(object):
                 fan_in = num_filters[i]
             else:
                 import h5py
-                
+
                 assert num_filters[i] == 64
                 vgg_filter_size = 3
                 weights['wc%d' % (i+1)] = safe_get('wc%d' % (i+1), [vgg_filter_size, vgg_filter_size, fan_in, num_filters[i]], dtype=tf.float32, trainable=train_pretrain_conv1)
@@ -176,7 +176,7 @@ class MIL(object):
         self.conv_out_size_final = in_shape
         weights.update(fc_weights)
         return weights
-    
+
     def construct_fc_weights(self, dim_input=27, dim_output=7, network_config=None):
         n_layers = network_config.get('n_layers', 4)
         dim_hidden = network_config.get('layer_size', [100]*(n_layers-1))
@@ -211,7 +211,7 @@ class MIL(object):
                 weights['b_%d_two_heads' % i] = init_bias([dim_hidden[i]], name='b_%d_two_heads' % i)
             in_shape = dim_hidden[i]
         return weights
-        
+
     def forward(self, image_input, state_input, weights, meta_testing=False, is_training=True, testing=False, network_config=None):
         # tile up context variable
         if FLAGS.fc_bt:
@@ -256,26 +256,26 @@ class MIL(object):
             num_rows, num_cols, num_fp = [int(x) for x in [num_rows, num_cols, num_fp]]
             x_map = np.empty([num_rows, num_cols], np.float32)
             y_map = np.empty([num_rows, num_cols], np.float32)
-    
+
             for i in range(num_rows):
                 for j in range(num_cols):
                     x_map[i, j] = (i - num_rows / 2.0) / num_rows
                     y_map[i, j] = (j - num_cols / 2.0) / num_cols
-    
+
             x_map = tf.convert_to_tensor(x_map)
             y_map = tf.convert_to_tensor(y_map)
-    
+
             x_map = tf.reshape(x_map, [num_rows * num_cols])
             y_map = tf.reshape(y_map, [num_rows * num_cols])
-    
+
             # rearrange features to be [batch_size, num_fp, num_rows, num_cols]
             features = tf.reshape(tf.transpose(conv_layer, [0,3,1,2]),
                                   [-1, num_rows*num_cols])
             softmax = tf.nn.softmax(features)
-    
+
             fp_x = tf.reduce_sum(tf.multiply(x_map, softmax), [1], keep_dims=True)
             fp_y = tf.reduce_sum(tf.multiply(y_map, softmax), [1], keep_dims=True)
-    
+
             conv_out_flat = tf.reshape(tf.concat(axis=1, values=[fp_x, fp_y]), [-1, num_fp*2])
         else:
             conv_out_flat = tf.reshape(conv_layer, [-1, self.conv_out_size])
@@ -387,7 +387,7 @@ class MIL(object):
 
         inputa = tf.concat(axis=2, values=[statea, obsa])
         inputb = tf.concat(axis=2, values=[stateb, obsb])
-        
+
         with tf.variable_scope('model', reuse=None) as training_scope:
             # Construct layers weight & bias
             if 'weights' not in dir(self):
@@ -400,7 +400,7 @@ class MIL(object):
             else:
                 training_scope.reuse_variables()
                 weights = self.weights
-            
+
             self.step_size = FLAGS.train_update_lr
             loss_multiplier = FLAGS.loss_multiplier
             final_eept_loss_eps = FLAGS.final_eept_loss_eps
@@ -411,7 +411,7 @@ class MIL(object):
             lossesa, outputsa = [], []
             lossesb = [[] for _ in xrange(num_updates)]
             outputsb = [[] for _ in xrange(num_updates)]
-            
+
             def batch_metalearn(inp):
                 inputa, inputb, actiona, actionb = inp
                 inputa = tf.reshape(inputa, [-1, dim_input])
@@ -433,11 +433,11 @@ class MIL(object):
 
                 if FLAGS.no_action:
                     actiona = tf.zeros_like(actiona)
-                
+
                 local_outputbs, local_lossesb, final_eept_lossesb = [], [], []
                 # Assume fixed data for each update
                 actionas = [actiona]*num_updates
-                
+
                 # Convert to image dims
                 inputa, _, state_inputa = self.construct_image_input(inputa, self.state_idx, self.img_idx, network_config=network_config)
                 inputb, flat_img_inputb, state_inputb = self.construct_image_input(inputb, self.state_idx, self.img_idx, network_config=network_config)
@@ -448,10 +448,10 @@ class MIL(object):
                 state_inputas = [state_inputa]*num_updates
                 if FLAGS.no_state:
                     state_inputa = None
-                
+
                 if FLAGS.learn_final_eept:
                     final_eeptas = [final_eepta]*num_updates
-                
+
                 # Pre-update
                 if 'Training' in prefix:
                     local_outputa, final_eept_preda = self.forward(inputa, state_inputa, weights, network_config=network_config)
@@ -484,7 +484,7 @@ class MIL(object):
                     gradients['bc1'] = tf.zeros_like(gradients['bc1'])
                 gradients_summ.append([gradients[key] for key in self.sorted_weight_keys])
                 fast_weights = dict(zip(weights.keys(), [weights[key] - self.step_size*gradients[key] for key in weights.keys()]))
-                
+
                 # Post-update
                 if FLAGS.no_state:
                     state_inputb = None
@@ -505,7 +505,7 @@ class MIL(object):
                     final_eept_lossb = euclidean_loss_layer(final_eept_predb[0], final_eeptb[0], multiplier=loss_multiplier, use_l1=FLAGS.use_l1_l2_loss)
                 final_eept_lossesb.append(final_eept_lossb)
                 local_lossesb.append(local_lossb)
-                
+
                 for j in range(num_updates - 1):
                     # Pre-update
                     state_inputa_new = state_inputas[j+1]
@@ -522,7 +522,7 @@ class MIL(object):
                     loss = act_loss_eps * euclidean_loss_layer(outputa, actionas[j+1], multiplier=loss_multiplier, use_l1=FLAGS.use_l1_l2_loss)
                     if FLAGS.learn_final_eept:
                         loss += final_eept_loss_eps * final_eept_lossa
-                    
+
                     # Compute fast gradients
                     grads = tf.gradients(loss, fast_weights.values())
                     gradients = dict(zip(fast_weights.keys(), grads))
@@ -542,7 +542,7 @@ class MIL(object):
                         gradients['bc1'] = tf.zeros_like(gradients['bc1'])
                     gradients_summ.append([gradients[key] for key in self.sorted_weight_keys])
                     fast_weights = dict(zip(fast_weights.keys(), [fast_weights[key] - self.step_size*gradients[key] for key in fast_weights.keys()]))
-                    
+
                     # Post-update
                     if FLAGS.no_state:
                         state_inputb = None
@@ -569,7 +569,7 @@ class MIL(object):
         if self.norm_type:
             # initialize batch norm vars.
             unused = batch_metalearn((inputa[0], inputb[0], actiona[0], actionb[0]))
-        
+
         out_dtype = [tf.float32, [tf.float32]*num_updates, tf.float32, tf.float32, [tf.float32]*num_updates, [tf.float32]*num_updates, tf.float32, [[tf.float32]*len(self.weights.keys())]*num_updates]
         result = tf.map_fn(batch_metalearn, elems=(inputa, inputb, actiona, actionb), dtype=out_dtype)
         print 'Done with map.'
