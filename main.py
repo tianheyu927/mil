@@ -122,7 +122,6 @@ def train(graph, model, saver, sess, data_generator, log_dir, restore_itr=0):
                     model.actionb: actionb}
         input_tensors = [model.train_op]
         if itr % SUMMARY_INTERVAL == 0 or itr % PRINT_INTERVAL == 0:
-            input_tensors.append(model.train_act_op)
             input_tensors.extend([model.train_summ_op, model.total_loss1, model.total_losses2[model.num_updates-1]])
         with graph.as_default():
             results = sess.run(input_tensors, feed_dict=feed_dict)
