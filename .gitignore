@@ -1,0 +1,9 @@
+# python specific
+*.pyc
+
+
+# model specific
+data/*
+logs/*
+mil_data.zip*
+MUJOCO_LOG.TXT
