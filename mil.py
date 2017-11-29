@@ -12,7 +12,7 @@ from natsort import natsorted
 FLAGS = flags.FLAGS
 
 class MIL(object):
-    """ Initialize MIL. Need to call construct_model to contruct the architecture after init. """
+    """ Initialize MIL. Need to call init_network to contruct the architecture after init. """
     def __init__(self, dU, state_idx=None, img_idx=None, network_config=None):
         # MIL hyperparams
         self.num_updates = FLAGS.num_updates
