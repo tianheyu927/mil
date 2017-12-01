@@ -75,6 +75,7 @@ class MIL(object):
                 self.val_summ_op = tf.summary.merge(summ)
 
     def construct_image_input(self, nn_input, state_idx, img_idx, network_config=None):
+        """ Preprocess images. """
         state_input = nn_input[:, 0:state_idx[-1]+1]
         flat_image_input = nn_input[:, state_idx[-1]+1:img_idx[-1]+1]
 
@@ -93,6 +94,7 @@ class MIL(object):
         return image_input, flat_image_input, state_input
 
     def construct_weights(self, dim_input=27, dim_output=7, network_config=None):
+        """ Construct weights for the network. """
         weights = {}
         num_filters = network_config['num_filters']
         strides = network_config.get('strides', [[1, 2, 2, 1], [1, 2, 2, 1], [1, 2, 2, 1]])
@@ -213,7 +215,7 @@ class MIL(object):
         return weights
 
     def forward(self, image_input, state_input, weights, meta_testing=False, is_training=True, testing=False, network_config=None):
-        # tile up context variable
+        """ Perform the forward pass. """
         if FLAGS.fc_bt:
             im_height = network_config['image_height']
             im_width = network_config['image_width']
@@ -355,17 +357,17 @@ class MIL(object):
                     fc_output = dropout(fc_output, keep_prob=prob, is_training=is_training, name='dropout_fc_%d' % i, selu=use_selu)
         return fc_output
 
-    def construct_model(self, input_tensors=None, prefix='Training_', dim_input=27, dim_output=7, batch_size=25, network_config=None):
+    def construct_model(self, input_tensors=None, prefix='Training_', dim_input=27, dim_output=7, network_config=None):
         """
-        An example a network in theano that has both state and image inputs, with the feature
-        point architecture (spatial softmax + expectation).
+        Construct the meta-learning graph.
         Args:
+            input_tensors: tensors of input videos, if available
+            prefix: indicate whether we are building training, validation or testing graph.
             dim_input: Dimensionality of input.
             dim_output: Dimensionality of the output.
-            batch_size: Batch size.
             network_config: dictionary of network structure parameters
         Returns:
-            A tfMap object that stores inputs, outputs, and scalar loss.
+            a tuple of output tensors.
         """
         if input_tensors is None:
             self.obsa = obsa = tf.placeholder(tf.float32, name='obsa') # meta_batch_size x update_batch_size x dim_input
