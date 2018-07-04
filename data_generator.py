@@ -107,11 +107,13 @@ class DataGenerator(object):
                 offset = self.dataset_size - FLAGS.training_set_size - FLAGS.val_set_size
             else:
                 offset = 0
-            train_img_folders = {i: os.path.join(self.demo_gif_dir, self.gif_prefix + '_%d' % i) for i in self.train_idx}
-            val_img_folders = {i: os.path.join(self.demo_gif_dir, self.gif_prefix + '_%d' % (i+offset)) for i in self.val_idx}
+            img_folders = natsorted(glob.glob(self.demo_gif_dir + self.gif_prefix + '_*'))
+            train_img_folders = {i: img_folders[i] for i in self.train_idx}
+            val_img_folders = {i: img_folders[i+offset] for i in self.val_idx}
             if noisy:
-                noisy_train_img_folders = {i: os.path.join(self.noisy_demo_gif_dir, self.gif_prefix + '_%d' % i) for i in self.train_idx}
-                noisy_val_img_folders = {i: os.path.join(self.noisy_demo_gif_dir, self.gif_prefix + '_%d' % (i+offset)) for i in self.val_idx}
+                noisy_img_folders = natsorted(glob.glob(self.noisy_demo_gif_dir + self.gif_prefix + '_*'))
+                noisy_train_img_folders = {i: noisy_img_folders[i] for i in self.train_idx}
+                noisy_val_img_folders = {i: noisy_img_folders[i] for i in self.val_idx}
             TEST_PRINT_INTERVAL = 500
             TOTAL_ITERS = FLAGS.metatrain_iterations
             self.all_training_filenames = []

@@ -63,6 +63,10 @@ def conv2d(img, w, b, strides=[1, 1, 1, 1], is_dilated=False):
     else:
         layer = tf.nn.conv2d(img, w, strides=strides, padding='SAME') + b
     return layer
+    
+def conv1d(img, w, b, stride=1):
+    layer = tf.nn.conv1d(img, w, stride=stride, padding='SAME') + b
+    return layer
             
 def dropout(layer, keep_prob=0.9, is_training=True, name=None, selu=False):
     if selu:
