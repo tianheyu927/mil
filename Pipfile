@@ -1,0 +1,19 @@
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+numpy = "*"
+tensorflow-gpu = "*"
+imageio = "*"
+scipy = "*"
+natsort = "*"
+joblib = "*"
+gym = {git = "http://github.com/tianheyu927/gym.git", ref = "mil"}
+mujoco_py = "==0.5.7"
+
+[dev-packages]
+
+[requires]
+python_version = "2.7.14"
